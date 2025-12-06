@@ -6,31 +6,24 @@ export default function handler(req, res) {
     return;
   }
 
-  let target = "";
+  // Normalisation
+  const s = shopcode.toUpperCase();
 
-  switch (shopcode.toUpperCase()) {
-    case "JAR":
-      target =
-        "https://admin.shopify.com/store/le-meuble/apps/official-swiss-post-app/order/getorders/type/label" +
-        "?shop=le-meuble.myshopify.com&ids%5B%5D=" + orderId;
-      break;
+  // Liste des URLs des 3 boutiques
+  const MAP = {
+    "JAR": `https://admin.shopify.com/store/le-meuble/apps/official-swiss-post-app/order/getorders/type/label?shop=le-meuble.myshopify.com&ids%5B%5D=${orderId}`,
+    "GAL": `https://admin.shopify.com/store/cb4c13-3/apps/official-swiss-post-app/order/getorders/type/label?shop=cb4c13-3.myshopify.com&ids%5B%5D=${orderId}`,
+    "LUM": `https://admin.shopify.com/store/jardin-confort/apps/official-swiss-post-app/order/getorders/type/label?shop=jardin-confort.myshopify.com&ids%5B%5D=${orderId}`
+  };
 
-    case "GAL":
-      target =
-        "https://admin.shopify.com/store/cb4c13-3/apps/official-swiss-post-app/order/getorders/type/label" +
-        "?shop=cb4c13-3.myshopify.com&ids%5B%5D=" + orderId;
-      break;
+  const target = MAP[s];
 
-    case "LUM":
-      target =
-        "https://admin.shopify.com/store/jardin-confort/apps/official-swiss-post-app/order/getorders/type/label" +
-        "?shop=jardin-confort.myshopify.com&ids%5B%5D=" + orderId;
-      break;
-
-    default:
-      res.status(404).send("Unknown shop: " + shopcode);
-      return;
+  if (!target) {
+    res.status(404).send("Unknown shop: " + shopcode);
+    return;
   }
 
-  res.redirect(302, target);
+  // Redirection propre
+  res.writeHead(302, { Location: target });
+  res.end();
 }
